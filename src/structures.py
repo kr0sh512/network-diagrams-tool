@@ -1,61 +1,117 @@
 from dataclasses import dataclass, field
-from typing import Dict, Any
+from typing import List, Optional, Dict
 
+
+# ===========================
+# Interface Classes
+# ===========================
+
+@dataclass
+class Interface:
+    name: str
+    ip_address: Optional[str] = None
+    mac_address: Optional[str] = None
+    speed: Optional[str] = None
+    duplex: Optional[str] = None
+
+    def __post_init__(self):
+        if not isinstance(self.name, str) or not self.name:
+            raise ValueError("Interface 'name' must be a non-empty string")
+
+
+@dataclass
+class VirtualInterface(Interface):
+    vlan_id: int = 0
+    parent_physical: Optional[Interface] = None
+
+    def __post_init__(self):
+        super().__post_init__()
+        if not isinstance(self.vlan_id, int) or self.vlan_id < 0:
+            raise ValueError("VirtualInterface 'vlan_id' must be a non-negative integer")
+        if not isinstance(self.parent_physical, Interface):
+            raise TypeError("VirtualInterface 'parent_physical' must reference an Interface")
+
+
+# ===========================
+# Network / Subnet
+# ===========================
+
+@dataclass
+class Network:
+    cidr: str
+    gateway: Optional[str] = None
+    interfaces: List[Interface] = field(default_factory=list)
+
+    def __post_init__(self):
+        if not isinstance(self.cidr, str) or not self.cidr:
+            raise ValueError("Network 'cidr' must be a non-empty string")
+        if self.gateway is not None and not isinstance(self.gateway, str):
+            raise ValueError("Network 'gateway' must be a string")
+
+
+# ===========================
+# Device Base Class (Abstract)
+# ===========================
 
 @dataclass
 class Device:
     name: str
-    model: str
-    properties: Dict[str, Any] = field(default_factory=dict)
+    mgmt_ip: Optional[str] = None
+    interfaces: List[Interface] = field(default_factory=list)
 
     def __post_init__(self):
-        if not self.name:
-            raise ValueError("Device name cannot be empty")
-        if not self.model:
-            raise ValueError("Device model cannot be empty")
-        if not isinstance(self.properties, dict):
-            raise TypeError("properties must be a dict")
+        if not isinstance(self.name, str) or not self.name:
+            raise ValueError("Device 'name' must be a non-empty string")
+        if self.mgmt_ip is not None and not isinstance(self.mgmt_ip, str):
+            raise ValueError("Device 'mgmtIP' must be a string")
 
+
+# ===========================
+# Host / Router / Switch
+# ===========================
 
 @dataclass
-class Switch(Device):
+class Host(Device):
+    operating_system: Optional[str] = None
+
     def __post_init__(self):
         super().__post_init__()
-
-        if "ports" not in self.properties:
-            raise ValueError(f"Switch '{self.name}' must define 'ports'")
-        if (
-            not isinstance(self.properties["ports"], int)
-            or self.properties["ports"] <= 0
-        ):
-            raise ValueError("'ports' must be a positive integer")
+        if not isinstance(self.operating_system, str):
+            raise ValueError("Host 'operatingSystem' must be a string")
 
 
 @dataclass
 class Router(Device):
+    routing_table: Dict[str, str] = field(default_factory=dict)
+    routing_protocols: List[str] = field(default_factory=list)
+
     def __post_init__(self):
         super().__post_init__()
-
-        if "interfaces" not in self.properties:
-            raise ValueError(f"Router '{self.name}' must define 'interfaces'")
-        if (
-            not isinstance(self.properties["interfaces"], int)
-            or self.properties["interfaces"] <= 0
-        ):
-            raise ValueError("'interfaces' must be a positive integer")
 
 
 @dataclass
-class Host(Device):
+class Switch(Device):
+    mac_table: Dict[str, str] = field(default_factory=dict)
+    vlan_database: Dict[int, str] = field(default_factory=dict)
+
     def __post_init__(self):
         super().__post_init__()
 
-        ip = self.properties.get("ip")
-        if not ip or not isinstance(ip, str):
-            raise ValueError(f"Host '{self.name}' must contain a valid 'ip' string")
 
+# ===========================
+# Physical Link (Wire)
+# ===========================
 
 @dataclass
 class Wire:
-    from_device: Device
-    to_device: Device
+    type: str
+    endpoints: List[Interface]  # Must contain exactly 2 interfaces
+    bandwidth: Optional[str] = None
+
+    def __post_init__(self):
+        if not isinstance(self.type, str) or not self.type:
+            raise ValueError("Wire 'type' must be a non-empty string")
+        if len(self.endpoints) != 2:
+            raise ValueError("Wire 'endpoints' must contain exactly 2 Interface objects")
+        if not all(isinstance(i, Interface) for i in self.endpoints):
+            raise TypeError("Wire 'endpoints' must be Interface objects")
