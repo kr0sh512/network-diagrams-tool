@@ -1,0 +1,79 @@
+@startuml
+
+' ===========================
+' Abstract base class
+' ===========================
+
+abstract class Device {
+    - name : String
+    - mgmtIP : String
+    - interfaces : Interface[*]
+}
+
+Device "1" o-- "0..*" Interface : has >
+
+' ===========================
+' Device Types
+' ===========================
+
+class Host {
+    - operatingSystem : String
+}
+
+class Router {
+    - routingTable : Map
+    - routingProtocols : List
+}
+
+class Switch {
+    - macTable : Map
+    - vlanDatabase : Map
+}
+
+Device <|-- Host
+Device <|-- Router
+Device <|-- Switch
+
+' ===========================
+' Interfaces
+' ===========================
+
+class Interface {
+    - name : String
+    - ipAddress : String
+    - macAddress : String
+    - speed : String
+    - duplex : String
+}
+
+class VirtualInterface {
+    - vlanId : Integer
+    - parentPhysical : Interface
+}
+
+Interface <|-- VirtualInterface
+
+' ===========================
+' Physical Links
+' ===========================
+
+class Wire {
+    - type : String
+    - endpoints : Interface[2]
+    - bandwidth : String
+}
+
+Wire "1" -- "2" Interface : connects >
+
+' ===========================
+' Optional: Networks / Subnets
+' ===========================
+
+class Network {
+    - cidr : String
+    - gateway : String
+}
+
+Network "1" o-- "0..*" Interface : membership >
+
+@enduml
