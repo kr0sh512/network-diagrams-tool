@@ -1,4 +1,6 @@
 from parse import parse_csv_to_structure
+import sys
+from structures import Host, Wire
 
 
 def check_correct(data):
@@ -14,7 +16,7 @@ def check_correct(data):
 
 
 if __name__ == "__main__":
-    data = parse_csv_to_structure("input.csv")
+    data = parse_csv_to_structure(sys.argv[1])
     if check_correct(data):
         print("yay!")
     print(data)

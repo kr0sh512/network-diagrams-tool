@@ -1,0 +1,6 @@
+name,"type","interfaces","ip","endpoints"
+PC1,"host","int1","",""
+PC2,"host","int2","",""
+int1,"interface","","10.0.12.1/24",""
+int2,"interface","","10.0.12.2/24",""
+link,"wire","","","int1,int2"
