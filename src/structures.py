@@ -21,6 +21,7 @@ class Interface:
         self.mac_address = fields.get("mac")
         self.speed = fields.get("speed")
         self.duplex = fields.get("duplex")
+        self.__post_init__()
 
     def __post_init__(self):
         if not isinstance(self.name, str) or not self.name:
@@ -31,6 +32,14 @@ class Interface:
 class VirtualInterface(Interface):
     vlan_id: int = 0
     parent_physical: Optional[Interface] = None
+
+    def __init__(self, fields):
+        super().__init__(fields)
+        self.vlan_id = fields.get("vlanID", fields.get("vlan_id", 0))
+        self.parent_physical = fields.get(
+            "parent_physical", fields.get("parentPhysical", fields.get("parent"))
+        )
+        self.__post_init__()
 
     def __post_init__(self):
         super().__post_init__()
@@ -55,6 +64,15 @@ class Network:
     gateway: Optional[str] = None
     interfaces: List[Interface] = field(default_factory=list)
 
+    def __init__(self, fields):
+        self.cidr = fields.get("cidr")
+        self.gateway = fields.get("gateway")
+        interfaces = fields.get("interfaces", [])
+        if isinstance(interfaces, str):
+            interfaces = [iface for iface in interfaces.split(",") if iface]
+        self.interfaces = interfaces
+        self.__post_init__()
+
     def __post_init__(self):
         if not isinstance(self.cidr, str) or not self.cidr:
             raise ValueError("Network 'cidr' must be a non-empty string")
@@ -77,6 +95,7 @@ class Device:
         self.name = fields.get("name")
         self.mgmt_ip = fields.get("mgmtIP")
         self.interfaces = [f for f in fields.get("interfaces").split(",") if f]
+        self.__post_init__()
 
     def __post_init__(self):
         if not isinstance(self.name, str) or not self.name:
@@ -97,6 +116,7 @@ class Host(Device):
     def __init__(self, fields):
         super().__init__(fields)
         self.operating_system = fields.get("operatingSystem")
+        self.__post_init__()
 
     def __post_init__(self):
         super().__post_init__()
@@ -109,6 +129,12 @@ class Router(Device):
     routing_table: Dict[str, str] = field(default_factory=dict)
     routing_protocols: List[str] = field(default_factory=list)
 
+    def __init__(self, fields):
+        super().__init__(fields)
+        self.routing_table = fields.get("routingTable", {})
+        self.routing_protocols = fields.get("routingProtocols", [])
+        self.__post_init__()
+
     def __post_init__(self):
         super().__post_init__()
 
@@ -117,6 +143,12 @@ class Router(Device):
 class Switch(Device):
     mac_table: Dict[str, str] = field(default_factory=dict)
     vlan_database: Dict[int, str] = field(default_factory=dict)
+
+    def __init__(self, fields):
+        super().__init__(fields)
+        self.mac_table = fields.get("macTable", {})
+        self.vlan_database = fields.get("vlanDatabase", {})
+        self.__post_init__()
 
     def __post_init__(self):
         super().__post_init__()
@@ -137,6 +169,7 @@ class Wire:
         self.id = fields.get("name")
         self.endpoints = [ep for ep in fields.get("endpoints").split(",") if ep]
         self.bandwidth = fields.get("bandwidth")
+        self.__post_init__()
 
     def __post_init__(self):
         if not isinstance(self.id, str) or not self.id:
