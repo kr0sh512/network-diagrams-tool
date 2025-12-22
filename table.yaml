@@ -1,0 +1,81 @@
+links: []
+networks:
+- A:
+    members:
+    - PC1.eth1
+    - com_left.eth2
+    network_ip: 10.0.0.0
+    mask: /24
+    vlan: 4
+- B:
+    members:
+    - PC2.eth1
+    - com_left.eth3
+    network_ip: 10.0.0.0
+    mask: /24
+    vlan: 2
+- C:
+    members:
+    - PC3.eth1
+    - com_right.eth3
+    network_ip: 10.0.0.0
+    mask: /24
+    vlan: 3
+- D:
+    members:
+    - PC4.eth1
+    - com_right.eth2
+    network_ip: 10.0.0.0
+    mask: /24
+    vlan: 4
+- tr:
+    members:
+    - com_left.eth1
+    - com_right.eth1
+    vlan: trunk
+meta:
+  id: table.csv
+  name: table.csv
+nodes:
+- role: host
+  name: PC1
+  interfaces:
+  - eth1:
+    - ip: 10.0.0.1/24
+      network: A
+- role: host
+  name: PC2
+  interfaces:
+  - eth1:
+    - ip: 10.0.0.2/24
+      network: B
+- role: host
+  name: PC3
+  interfaces:
+  - eth1:
+    - ip: 10.0.0.3/24
+      network: C
+- role: host
+  name: PC4
+  interfaces:
+  - eth1:
+    - ip: 10.0.0.4/24
+      network: D
+- role: switch
+  name: com_left
+  interfaces:
+  - eth1:
+    - network: tr
+  - eth2:
+    - network: A
+  - eth3:
+    - network: B
+- role: switch
+  name: com_right
+  interfaces:
+  - eth1:
+    - network: tr
+  - eth2:
+    - network: D
+  - eth3:
+    - network: C

@@ -1,0 +1,11 @@
+Name,Role,Interface,Network,VLAN,Network IP,Mask,Device IP,Default Gateway
+PC1,Host,eth1,A,4,10.0.0.0,/24,10.0.0.1,0.0.0.0
+PC2,Host,eth1,B,2,10.0.0.0,/24,10.0.0.2,0.0.0.0
+PC3,Host,eth1,C,3,10.0.0.0,/24,10.0.0.3,0.0.0.0
+PC4,Host,eth1,D,4,10.0.0.0,/24,10.0.0.4,0.0.0.0
+com_left,Switch,eth1,tr,trunk,,,,
+com_left,Switch,eth2,A,4,,,,
+com_left,Switch,eth3,B,2,,,,
+com_right,Switch,eth1,tr,trunk,,,,
+com_right,Switch,eth2,D,4,,,,
+com_right,Switch,eth3,C,3,,,,

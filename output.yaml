@@ -1,16 +1,19 @@
 links:
-- endpoints:
-  - PC1
-  - PC2
+networks:
+    - A: [PC1.eth0, PC2.eth0]
 meta:
-  id: /home/krosh/Documents/Github/network-diagrams-tool/host-host.csv
-  name: /home/krosh/Documents/Github/network-diagrams-tool/host-host.csv
+  id: host-host.csv
+  name: host-host.csv
 nodes:
-- interfaces:
-  - ip: 10.0.12.1/24
+- role: host
   name: PC1
-  role: host
-- interfaces:
-  - ip: 10.0.12.2/24
+  interfaces:
+  - eth0:
+      - ip: 10.0.12.1/24
+        network: A
+- role: host
   name: PC2
-  role: host
+  interfaces:
+    - eth0:
+      - ip: 10.0.12.2/24
+        network: A
