@@ -10,6 +10,7 @@ from ..domain.models import (
 )
 
 from . import RawDevices
+import logging
 
 name_matching = {
     "DEVICE_TYPE": "Role",
@@ -136,12 +137,15 @@ def assign_interfaces_to_networks(
 def convert_raw_topology(raw_devices: list[RawDevices]) -> Topology:
     topology = Topology()
 
+    logging.info(f"Parsing {len(raw_devices)} raw devices to devices")
     devices = parse_devices(raw_devices)
+    logging.info(f"Parsing interfaces from raw devices")
     add_interfaces(devices, raw_devices)
 
     for device in devices:
         topology.add_device(device)
 
+    logging.info(f"Parsing networks from raw devices")
     networks = parse_networks(devices, raw_devices)
     assign_interfaces_to_networks(networks, devices)
 
