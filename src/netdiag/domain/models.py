@@ -1,5 +1,4 @@
-from typing import List, Dict, Any, Optional
-
+from typing import Any, Dict, List, Optional
 
 # ===========================
 
@@ -10,9 +9,7 @@ class Interface:
     network: Optional[str]
     default_gateway: Optional[str]
     # ---
-    device: Optional[
-        "Device"
-    ]  # set by Device.add_interface() when the interface is added to a device
+    device: "Device"  # set by Device.add_interface() when the interface is added to a device
 
     def __init__(
         self,
@@ -48,6 +45,7 @@ class VirtualInterface(Interface):
 
 class Device:
     name: str
+    role: str = "device"
     interfaces: Dict[str, Interface]
 
     def __init__(self, name: str):
@@ -66,7 +64,8 @@ class Device:
     def rm_interface(self, interface: Interface):
         if interface.name in self.interfaces:
             del self.interfaces[interface.name]
-            interface.device = None  # clear the device attribute of the interface
+            # interface.device = None  # clear the device attribute of the interface
+            del interface
         else:
             raise ValueError(
                 f"Interface '{interface.name}' not found in device '{self.name}'"
@@ -77,15 +76,15 @@ class Device:
 
 
 class Host(Device):
-    pass
+    role: str = "host"
 
 
 class Router(Device):
-    pass
+    role: str = "router"
 
 
 class Switch(Device):
-    pass
+    role: str = "switch"
 
 
 # ===========================

@@ -1,16 +1,16 @@
+import logging
+
 from ..domain.models import (
-    Interface,
-    VirtualInterface,
     Device,
     Host,
+    Interface,
+    Network,
     Router,
     Switch,
-    Network,
     Topology,
+    VirtualInterface,
 )
-
 from . import RawDevices
-import logging
 
 name_matching = {
     "DEVICE_TYPE": "Role",

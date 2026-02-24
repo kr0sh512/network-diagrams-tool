@@ -1,6 +1,7 @@
-from typing import Dict, Any, List
 import csv
 import logging
+from pathlib import Path
+from typing import Any, Dict, List
 
 
 class RawDevices:
@@ -22,7 +23,7 @@ class RawDevices:
         return f"RawDevices(id={self.id}, fields={self.fields})"
 
 
-def parse_csv(file_path: str, delimiter: str = ",") -> List[RawDevices]:
+def parse_csv(file_path: Path, delimiter: str = ",") -> List[RawDevices]:
     logging.info(f"Parsing CSV file: {file_path}")
 
     with open(file_path, mode="r", encoding="utf-8") as csvfile:
