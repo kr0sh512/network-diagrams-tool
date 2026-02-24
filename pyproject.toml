@@ -1,0 +1,19 @@
+[project]
+name = "netdiag"
+version = "0.2.0"
+
+[project.scripts]
+netdiag = "netdiag.base:run"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.black]
+line-length = 88
+
+[tool.isort]
+profile = "black"
+line_length = 88
