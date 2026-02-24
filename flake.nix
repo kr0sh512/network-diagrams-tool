@@ -15,6 +15,9 @@
             python312
             python312Packages.virtualenv
             python312Packages.pip
+
+            graphviz
+            d2
           ];
         };
       });
