@@ -1,0 +1,110 @@
+direction: down
+
+Topology: {
+  shape: class
+  devices: "Dict[str, Device]"
+  networks: "Dict[str, Network]"
+  __init__(self)
+  "add_device(self, device: Device)"
+  "rm_device(self, device: Device)"
+  "add_network(self, network: Network)"
+  "rm_network(self, network: Network)"
+  __repr__(self): str
+}
+
+Network: {
+  shape:class
+  name: str
+  interfaces: "List[Interface]"
+  vlan: "Optional[str]"
+  network_ip: "Optional[str]"
+  subnet_mask: "Optional[str]"
+  "__init__(self, ...)"
+  "add_interface(self, interface: Interface)"
+  "rm_interface(self, interface: Interface)"
+  __repr__(self): str
+}
+
+Host: {
+  shape: class
+}
+Router: {
+  shape: class
+}
+Switch: {
+  shape: class
+}
+
+Device: {
+  shape: class
+
+  name: str
+  role: str
+  interfaces: "Dict[str, Interface]"
+  "__init__(self, name: str)"
+  "add_interface(self, interface: Interface)"
+  "rm_interface(self, interface: Interface)"
+  __repr__(self): str
+}
+
+VirtualInterface: {
+  shape: class
+}
+
+Interface: {
+  shape: class
+
+  name: str
+  ip_address: "Optional[str]"
+  network: "Optional[str]"
+  default_gateway: "Optional[str]"
+  device: Device
+
+  "__init__(self, ...)"
+  __repr__(self): str
+}
+
+Host -> Device: {
+  target-arrowhead.shape: triangle
+  target-arrowhead.style.filled: false
+}
+
+Router -> Device: {
+  target-arrowhead.shape: triangle
+  target-arrowhead.style.filled: false
+}
+
+Switch -> Device: {
+  target-arrowhead.shape: triangle
+  target-arrowhead.style.filled: false
+}
+
+VirtualInterface -> Interface: {
+  target-arrowhead.shape: triangle
+  target-arrowhead.style.filled: false
+}
+
+Device -- Interface: has {
+  source-arrowhead: 1..*
+  target-arrowhead: 1
+}
+
+Device -- VirtualInterface: has {
+  source-arrowhead: 1..*
+  target-arrowhead: 1
+}
+
+Topology -- Network: has {
+  source-arrowhead: 1..*
+  target-arrowhead: 1
+}
+
+Topology -- Device: has {
+  source-arrowhead: 1..*
+  target-arrowhead: 1
+}
+
+Network -- Interface: has {
+  source-arrowhead: 1..*
+  target-arrowhead: 1
+}
