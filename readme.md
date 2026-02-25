@@ -2,4 +2,5 @@
 
 ## UML Topology
 
-![[UML/UML.svg]]
+![](UML/UML.svg?raw=true)
+
