@@ -15,6 +15,8 @@ from . import RawDevices
 name_matching = {
     "DEVICE_TYPE": "Role",
     "DEVICE_NAME": "Name",
+    "ADAPTER": "Adapter",
+    "MASTER": "Master Interface",
     "INTERFACE_NAME": "Interface",
     "NETWORK_NAME": "Network",
     "VLAN": "VLAN",
@@ -28,6 +30,10 @@ name_matching = {
     "ROUTER": "Router",
     "SWITCH": "Switch",
 }
+
+
+def _get_from_field(fields: dict, field_name: str) -> str:
+    return fields.get(name_matching[field_name], "").strip()
 
 
 def parse_devices(raw_devices: list[RawDevices]) -> list[Device]:
@@ -73,22 +79,30 @@ def add_interfaces(devices: list[Device], raw_devices: list[RawDevices]) -> None
                 f"Device with name '{device_name}' not found for interface parsing"
             )
 
-        interface = Interface(
-            name=raw_device.fields.get(name_matching["INTERFACE_NAME"], "").strip(),
-            ip_address=raw_device.fields.get(name_matching["IP_ADDRESS"], "").strip(),
-            network=raw_device.fields.get(name_matching["NETWORK_NAME"], "").strip(),
-            default_gateway=raw_device.fields.get(
-                name_matching["DEFAULT_GATEWAY"], ""
-            ).strip(),
-        )
+        if not raw_device.fields.get(name_matching["ADAPTER"], "").strip():
+            interface = VirtualInterface(
+                name=_get_from_field(raw_device.fields, "INTERFACE_NAME"),
+                master_interface=_get_from_field(raw_device.fields, "MASTER"),
+                ip_address=_get_from_field(raw_device.fields, "IP_ADDRESS"),
+                network=_get_from_field(raw_device.fields, "NETWORK_NAME"),
+                default_gateway=_get_from_field(raw_device.fields, "DEFAULT_GATEWAY"),
+            )
+
+        else:
+            interface = Interface(
+                name=_get_from_field(raw_device.fields, "INTERFACE_NAME"),
+                adapter=_get_from_field(raw_device.fields, "ADAPTER"),
+                master_interface=_get_from_field(raw_device.fields, "MASTER"),
+                ip_address=_get_from_field(raw_device.fields, "IP_ADDRESS"),
+                network=_get_from_field(raw_device.fields, "NETWORK_NAME"),
+                default_gateway=_get_from_field(raw_device.fields, "DEFAULT_GATEWAY"),
+            )
         device.add_interface(interface)
 
     return
 
 
-def parse_networks(
-    devices: list[Device], raw_devices: list[RawDevices]
-) -> list[Network]:
+def parse_networks(raw_devices: list[RawDevices]) -> list[Network]:
     networks = []
 
     for raw_device in raw_devices:
@@ -146,7 +160,7 @@ def convert_raw_topology(raw_devices: list[RawDevices]) -> Topology:
         topology.add_device(device)
 
     logging.info(f"Parsing networks from raw devices")
-    networks = parse_networks(devices, raw_devices)
+    networks = parse_networks(raw_devices)
     assign_interfaces_to_networks(networks, devices)
 
     for network in networks:

@@ -5,6 +5,8 @@ from typing import Any, Dict, List, Optional
 
 class Interface:
     name: str
+    adapter: Optional[str]
+    master_interface: Optional[str]
     ip_address: Optional[str]
     network: Optional[str]
     default_gateway: Optional[str]
