@@ -16,6 +16,8 @@ class Interface:
     def __init__(
         self,
         name: str,
+        adapter: Optional[str] = None,
+        master_interface: Optional[str] = None,
         ip_address: Optional[str] = None,
         network: Optional[str] = None,
         default_gateway: Optional[str] = None,
@@ -28,11 +30,17 @@ class Interface:
             raise ValueError("Interface 'network' must be a string or None")
         if default_gateway is not None and not isinstance(default_gateway, str):
             raise ValueError("Interface 'default_gateway' must be a string or None")
+        if adapter is not None and not isinstance(adapter, str):
+            raise ValueError("Interface 'adapter' must be a string or None")
+        if master_interface is not None and not isinstance(master_interface, str):
+            raise ValueError("Interface 'master_interface' must be a string or None")
 
         self.name = name
         self.ip_address = ip_address
         self.network = network
         self.default_gateway = default_gateway
+        self.adapter = adapter
+        self.master_interface = master_interface
 
     def __repr__(self) -> str:
         return f"Interface(name={self.name}, ip_address={self.ip_address}, network={self.network}, default_gateway={self.default_gateway})"

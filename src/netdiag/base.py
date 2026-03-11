@@ -21,9 +21,9 @@ def run(argv: list[str] | None = None) -> None:
     raw_devices = parse_csv(Path(args.input))
     topology = convert_raw_topology(raw_devices)
 
-    generate_diagram(topology, Path(args.output) / "diagram.png")
+    # generate_diagram(topology, Path(args.output) / "diagram.png")
     make_yaml(topology, Path(args.output) / "topology.yaml")
-    # generate_d2_diagram(topology, Path(args.output) / "diagram.d2")
+    generate_d2_diagram(topology, Path(args.output) / "diagram.d2")
 
     logging.info("All tasks completed successfully.")
 

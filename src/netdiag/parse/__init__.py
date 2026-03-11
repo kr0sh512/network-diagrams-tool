@@ -14,6 +14,7 @@ class RawDevices:
         if not isinstance(fields, dict):
             raise ValueError("RawDevices 'fields' must be a dictionary")
         if any(not isinstance(k, str) for k in fields.keys()):
+            print(fields.keys())
             raise ValueError("RawDevices 'fields' keys must be strings")
 
         self.id = id

@@ -6,6 +6,7 @@ from ..domain.models import VirtualInterface
 from pathlib import Path
 from py_d2 import D2Diagram, D2Shape, D2Connection
 from py_d2.shape import Shape
+from py_d2.connection import Direction
 
 # https://d2lang.com/tour/themes/
 THEME_NUMBER = 200
@@ -71,6 +72,7 @@ def generate_d2_diagram(topology: Topology, output_path: Path) -> None:
                 connection = D2Connection(
                     shape_1=f"{device.name}.{interface.adapter}",
                     shape_2=interface.network,
+                    direction=Direction("--"),
                 )
                 connections.append(connection)
 
@@ -102,7 +104,7 @@ def _generate_picture(diagram: Path, output_path: Path) -> None:
         )
 
     res = subprocess.run(
-        ["d2", f"--theme={THEME_NUMBER}", str(diagram), str(output_path)],
+        ["d2", f"--theme={THEME_NUMBER}", str(diagram)],
         check=True,
         capture_output=True,
     )
