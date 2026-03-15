@@ -1,10 +1,10 @@
 Name,Role,Adapter,Interface,Master Interface,Network,VLAN,Network IP,Mask,Device IP,Default Gateway
 PC1,Host,Adapter1,eth1,vlan7,A,,,,,
-PC1,Host,,vlan7,,7,10.10.10.0,/24,10.10.10.7,0.0.0.0,
+PC1,Host,,vlan7,,,7,10.10.10.0,/24,10.10.10.7,0.0.0.0
 PC2,Host,Adapter1,eth1,vlan9,B,,,,,
-PC2,Host,,vlan9,,9,10.10.10.0,/24,10.10.10.9,0.0.0.0,
-com,Switch,Adapter1,eth2,vlan7,A,7,,,,
-com,Switch,Adapter2,eth3,vlan9,B,9,,,,
+PC2,Host,,vlan9,,,9,10.10.10.0,/24,10.10.10.9,0.0.0.0
+com,Switch,Adapter1,eth1,vlan7,A,7,,,,
+com,Switch,Adapter2,eth2,vlan9,B,9,,,,
 com,Switch,,vlan7,bridge,,,,,,
 com,Switch,,vlan9,bridge,,,,,,
 com,Switch,,bridge,,,,,,,

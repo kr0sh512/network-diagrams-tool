@@ -21,11 +21,14 @@ def make_yaml(topology: Topology, output_path: Path) -> None:
 
         if len(interfaces_with_device) >= 2:
             data["networks"].append(
+                # {
+                #     network.name: [
+                #         f"{iface.device.name}.{iface.name}"
+                #         for iface in interfaces_with_device
+                #     ]
+                # }
                 {
-                    network.name: [
-                        f"{iface.device.name}.{iface.name}"
-                        for iface in interfaces_with_device
-                    ]
+                    "name": network.name,
                 }
             )
 
