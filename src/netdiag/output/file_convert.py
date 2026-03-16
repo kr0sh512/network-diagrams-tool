@@ -35,33 +35,18 @@ def make_yaml(topology: Topology, output_path: Path) -> None:
     data["nodes"] = []
 
     for _, device in topology.devices.items():
-        data["nodes"].append(
-            {
-                "role": device.role,
-                "name": device.name,
-                "interfaces": [
-                    {
-                        interface_name: [
-                            {
-                                "ip": (
-                                    interface.ip_address
-                                    if interface.ip_address
-                                    else None
-                                ),
-                                "network": (
-                                    interface.network if interface.network else None
-                                ),
-                                "gateway": (
-                                    interface.default_gateway
-                                    if interface.default_gateway
-                                    else None
-                                ),
-                            }
-                        ]
-                    }
-                    for interface_name, interface in device.interfaces.items()
-                ],
+        interfaces = dict()
+        for interface_name, interface in device.interfaces.items():
+            interfaces[interface_name] = {
+                "ip": interface.ip_address if interface.ip_address else None,
+                "network": interface.network if interface.network else None,
+                "gateway": (
+                    interface.default_gateway if interface.default_gateway else None
+                ),
             }
+
+        data["nodes"].append(
+            {"role": device.role, "name": device.name, "interfaces": interfaces}
         )
 
     with open(str(output_path), "w", encoding="utf-8") as f:
