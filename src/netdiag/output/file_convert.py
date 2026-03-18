@@ -37,8 +37,17 @@ def make_yaml(topology: Topology, output_path: Path) -> None:
     for _, device in topology.devices.items():
         interfaces = dict()
         for interface_name, interface in device.interfaces.items():
+            mask = (
+                topology.networks[interface.network].subnet_mask
+                if interface.network
+                else None
+            )
+            ip = f"{interface.ip_address}/{mask}" if interface.ip_address else None
+            if mask is None:
+                ip = interface.ip_address if interface.ip_address else None
+
             interfaces[interface_name] = {
-                "ip": interface.ip_address if interface.ip_address else None,
+                "ip": ip,
                 "network": interface.network if interface.network else None,
                 "gateway": (
                     interface.default_gateway if interface.default_gateway else None
