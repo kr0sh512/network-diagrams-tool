@@ -5,10 +5,13 @@ from typing import Any, Dict, List, Optional
 
 class Interface:
     name: str
+    itype: Optional[str]
     adapter: Optional[str]
-    master_interface: Optional[str]
+    slave_interfaces: Optional[List[str]]
+    parent_interface: Optional[str]
     ip_address: Optional[str]
     network: Optional[str]
+    subnet_mask: Optional[str]
     default_gateway: Optional[str]
     # ---
     device: "Device"  # set by Device.add_interface() when the interface is added to a device
@@ -16,38 +19,70 @@ class Interface:
     def __init__(
         self,
         name: str,
+        itype: Optional[str] = None,
         adapter: Optional[str] = None,
-        master_interface: Optional[str] = None,
+        slave_interfaces: Optional[List[str]] = None,
+        parent_interface: Optional[str] = None,
         ip_address: Optional[str] = None,
         network: Optional[str] = None,
+        subnet_mask: Optional[str] = None,
         default_gateway: Optional[str] = None,
     ):
         if not isinstance(name, str):
             raise ValueError("Interface 'name' must be a string")
+        if itype is not None and not isinstance(itype, str):
+            raise ValueError("Interface 'itype' must be a string or None")
         if ip_address is not None and not isinstance(ip_address, str):
             raise ValueError("Interface 'ip_address' must be a string or None")
         if network is not None and not isinstance(network, str):
             raise ValueError("Interface 'network' must be a string or None")
+        if subnet_mask is not None and not isinstance(subnet_mask, str):
+            raise ValueError("Interface 'subnet_mask' must be a string or None")
         if default_gateway is not None and not isinstance(default_gateway, str):
             raise ValueError("Interface 'default_gateway' must be a string or None")
         if adapter is not None and not isinstance(adapter, str):
             raise ValueError("Interface 'adapter' must be a string or None")
-        if master_interface is not None and not isinstance(master_interface, str):
-            raise ValueError("Interface 'master_interface' must be a string or None")
+        if slave_interfaces is not None and not isinstance(slave_interfaces, list):
+            raise ValueError(
+                "Interface 'slave_interfaces' must be a list of strings or None"
+            )
+        if parent_interface is not None and not isinstance(parent_interface, str):
+            raise ValueError("Interface 'parent_interface' must be a string or None")
+
+        itype = None if itype == "" else itype
+        adapter = None if adapter == "" else adapter
+
+        if itype is None and adapter is None:
+            itype = "virtual"
+        if adapter is not None:
+            if itype is not None and itype != "physical":
+                raise ValueError(
+                    "Interface with an adapter must have 'itype' set to 'physical'"
+                )
+            itype = "physical"
+
+        if itype not in (None, "physical", "virtual", "bridge", "vlan"):
+            raise ValueError(
+                "Interface 'itype' must be one of 'physical', 'virtual', 'bridge', 'vlan', or None"
+            )
+
+        if itype == "bridge" and not slave_interfaces:
+            raise ValueError("Bridge interfaces must have 'slave_interfaces' defined")
+        if itype == "vlan" and not parent_interface:
+            raise ValueError("VLAN interfaces must have 'parent_interface' defined")
 
         self.name = name
+        self.itype = itype
         self.ip_address = ip_address
         self.network = network
+        self.subnet_mask = subnet_mask
         self.default_gateway = default_gateway
         self.adapter = adapter
-        self.master_interface = master_interface
+        self.slave_interfaces = slave_interfaces
+        self.parent_interface = parent_interface
 
     def __repr__(self) -> str:
-        return f"Interface(name={self.name}, ip_address={self.ip_address}, network={self.network}, default_gateway={self.default_gateway})"
-
-
-class VirtualInterface(Interface):
-    pass
+        return f"Interface(name={self.name}, itype={self.itype}, ip_address={self.ip_address}, network={self.network}, default_gateway={self.default_gateway}, subnet_mask={self.subnet_mask}, adapter={self.adapter}, slave_interfaces={self.slave_interfaces})"
 
 
 # ===========================
@@ -105,14 +140,12 @@ class Network:
     interfaces: List[Interface]
     vlan: Optional[str]  # need a proper parse
     network_ip: Optional[str]
-    subnet_mask: Optional[str]
 
     def __init__(
         self,
         name: str,
         vlan: Optional[str] = None,
         network_ip: Optional[str] = None,
-        subnet_mask: Optional[str] = None,
     ):
         if not isinstance(name, str):
             raise ValueError("Network 'name' must be a string")
@@ -120,14 +153,11 @@ class Network:
             raise ValueError("Network 'vlan' must be a string or None")
         if network_ip is not None and not isinstance(network_ip, str):
             raise ValueError("Network 'network_ip' must be a string or None")
-        if subnet_mask is not None and not isinstance(subnet_mask, str):
-            raise ValueError("Network 'subnet_mask' must be a string or None")
 
         self.name = name
         self.interfaces = []
         self.vlan = vlan
         self.network_ip = network_ip
-        self.subnet_mask = subnet_mask
 
     def add_interface(self, interface: Interface):
         if not isinstance(interface, Interface):
@@ -152,7 +182,7 @@ class Network:
             )
 
     def __repr__(self) -> str:
-        return f"Network(name={self.name}, interfaces={self.interfaces}), vlan={self.vlan}, network_ip={self.network_ip}, subnet_mask={self.subnet_mask})"
+        return f"Network(name={self.name}, interfaces={self.interfaces}), vlan={self.vlan}, network_ip={self.network_ip})"
 
 
 class Topology:

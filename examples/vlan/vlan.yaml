@@ -1,0 +1,88 @@
+meta:
+  id: "lab-vlan"
+  name: "VLAN over shared trunk"
+  description: >
+    Two VLANs (5 and 7) isolated at L2, carried over a shared trunk link
+    between two bridge nodes (bright and bleft).
+
+networks:
+  - name: netA
+  - name: netB
+  - name: netC  # trunk between bright and bleft
+  - name: netD
+  - name: netE
+
+nodes:
+  - name: hostA
+    role: host
+    interfaces:
+      eth1:
+        network: netA
+        ip: "10.0.0.1/24"
+
+  - name: hostB
+    role: host
+    interfaces:
+      eth1:
+        network: netB
+        ip: "10.0.0.2/24"
+
+  - name: hostD
+    role: host
+    interfaces:
+      eth1:
+        network: netD
+        ip: "10.0.0.3/24"
+
+  - name: hostE
+    role: host
+    interfaces:
+      eth1:
+        network: netE
+        ip: "10.0.0.4/24"
+
+  # Right bridge: connects hostA (VLAN 5) and hostB (VLAN 7) via trunk to bleft
+  - name: bright
+    role: switch
+    interfaces:
+      eth1:
+        network: netA    # untagged port for VLAN 5
+      eth2:
+        network: netB    # untagged port for VLAN 7
+      eth3:
+        network: netC    # 802.1Q trunk to bleft
+    vlans:
+      - id: 5
+        parent: eth3
+        name: vlan5      # carries VLAN 5 over trunk
+      - id: 7
+        parent: eth3
+        name: vlan7      # carries VLAN 7 over trunk
+    bridges:
+      - name: br5
+        members: [eth1, vlan5]   # VLAN 5 domain
+      - name: br7
+        members: [eth2, vlan7]   # VLAN 7 domain
+
+  # Left bridge: connects hostD (VLAN 5) and hostE (VLAN 7) via trunk to bright
+  - name: bleft
+    role: switch
+    interfaces:
+      eth1:
+        network: netD    # untagged port for VLAN 5
+      eth2:
+        network: netE    # untagged port for VLAN 7
+      eth3:
+        network: netC    # 802.1Q trunk to bright
+    vlans:
+      - id: 5
+        parent: eth3
+        name: vlan5
+      - id: 7
+        parent: eth3
+        name: vlan7
+    bridges:
+      - name: br5
+        members: [eth1, vlan5]
+      - name: br7
+        members: [eth2, vlan7]

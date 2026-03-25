@@ -21,12 +21,6 @@ def make_yaml(topology: Topology, output_path: Path) -> None:
 
         if len(interfaces_with_device) >= 2:
             data["networks"].append(
-                # {
-                #     network.name: [
-                #         f"{iface.device.name}.{iface.name}"
-                #         for iface in interfaces_with_device
-                #     ]
-                # }
                 {
                     "name": network.name,
                 }
@@ -36,24 +30,67 @@ def make_yaml(topology: Topology, output_path: Path) -> None:
 
     for _, device in topology.devices.items():
         interfaces = dict()
+        interfaces["bridges"] = []
+        interfaces["vlans"] = []
+
         for interface_name, interface in device.interfaces.items():
             ip = interface.ip_address if interface.ip_address else None
 
-            mask = (
-                topology.networks[interface.network].subnet_mask
-                if interface.network
-                else None
-            )
+            mask = interface.subnet_mask if interface.subnet_mask else None
+
             if mask is not None:
                 mask = mask.split("/")[1] if "/" in mask else mask
                 ip = f"{interface.ip_address}/{mask}" if interface.ip_address else None
 
+            index = None
+            # check regex Adapter[0-9]+
+            if interface.adapter:
+                if (
+                    not interface.adapter.startswith("Adapter")
+                    or not interface.adapter[7:].isdigit()
+                ):
+                    raise ValueError(
+                        f"Invalid adapter name '{interface.adapter}' for interface '{interface_name}' on device '{device.name}'. Adapter name must be in the format 'AdapterX' where X is a number."
+                    )
+                index = int(interface.adapter[7:])
+
+            if interface.itype == "bridge":
+                interfaces["bridges"].append(
+                    {
+                        "name": interface.name,
+                        "members": interface.slave_interfaces,
+                        "ip": ip,
+                        "network": interface.network if interface.network else None,
+                        "gateway": (
+                            interface.default_gateway
+                            if interface.default_gateway
+                            else None
+                        ),
+                    }
+                )
+                continue
+            if interface.itype == "vlan":
+                interfaces["vlans"].append(
+                    {
+                        "name": interface.name,
+                        "parent": interface.parent_interface,
+                        "ip": ip,
+                        "network": interface.network if interface.network else None,
+                        "gateway": (
+                            interface.default_gateway
+                            if interface.default_gateway
+                            else None
+                        ),
+                    }
+                )
+                continue
             interfaces[interface_name] = {
                 "ip": ip,
                 "network": interface.network if interface.network else None,
                 "gateway": (
                     interface.default_gateway if interface.default_gateway else None
                 ),
+                "index": index,
             }
 
         data["nodes"].append(

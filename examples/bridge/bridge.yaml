@@ -1,0 +1,35 @@
+meta:
+  id: "lab-bridge"
+  name: "L2 Bridge"
+  description: "Two hosts in separate networks joined by a Linux bridge at L2."
+
+networks:
+  - name: net1
+  - name: net2
+
+nodes:
+  - name: srv
+    role: host
+    interfaces:
+      eth1:
+        network: net1
+        ip: "10.0.0.1/24"
+
+  - name: client
+    role: host
+    interfaces:
+      eth1:
+        network: net2
+        ip: "10.0.0.2/24"
+
+  - name: bridge
+    role: switch
+    interfaces:
+      eth1:
+        network: net1
+      eth2:
+        network: net2
+    bridges:
+      - name: br0
+        stp: false
+        members: [eth1, eth2]

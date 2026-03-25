@@ -2,7 +2,6 @@ import shutil
 import subprocess
 
 from ..domain.models import Topology
-from ..domain.models import VirtualInterface
 from pathlib import Path
 from py_d2 import D2Diagram, D2Shape, D2Connection
 from py_d2.shape import Shape
@@ -53,7 +52,7 @@ def generate_d2_diagram(topology: Topology, output_path: Path) -> None:
 
     for device in topology.devices.values():
         for interface in device.interfaces.values():
-            if isinstance(interface, VirtualInterface):
+            if interface.itype != "physical":
                 continue  # Skip virtual interfaces for now
 
             shape = D2Shape(

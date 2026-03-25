@@ -8,7 +8,6 @@ from ..domain.models import (
     Router,
     Switch,
     Topology,
-    VirtualInterface,
 )
 from . import RawDevices
 
@@ -16,7 +15,10 @@ name_matching = {
     "DEVICE_TYPE": "Role",
     "DEVICE_NAME": "Name",
     "ADAPTER": "Adapter",
+    "INTERFACE TYPE": "Interface Type",
     "MASTER": "Master Interface",
+    "SLAVES": "Slave Interfaces",
+    "PARENT": "Parent Interface",
     "INTERFACE_NAME": "Interface",
     "NETWORK_NAME": "Network",
     "VLAN": "VLAN",
@@ -79,24 +81,20 @@ def add_interfaces(devices: list[Device], raw_devices: list[RawDevices]) -> None
                 f"Device with name '{device_name}' not found for interface parsing"
             )
 
-        if not raw_device.fields.get(name_matching["ADAPTER"], "").strip():
-            interface = VirtualInterface(
-                name=_get_from_field(raw_device.fields, "INTERFACE_NAME"),
-                master_interface=_get_from_field(raw_device.fields, "MASTER"),
-                ip_address=_get_from_field(raw_device.fields, "IP_ADDRESS"),
-                network=_get_from_field(raw_device.fields, "NETWORK_NAME"),
-                default_gateway=_get_from_field(raw_device.fields, "DEFAULT_GATEWAY"),
-            )
-
-        else:
-            interface = Interface(
-                name=_get_from_field(raw_device.fields, "INTERFACE_NAME"),
-                adapter=_get_from_field(raw_device.fields, "ADAPTER"),
-                master_interface=_get_from_field(raw_device.fields, "MASTER"),
-                ip_address=_get_from_field(raw_device.fields, "IP_ADDRESS"),
-                network=_get_from_field(raw_device.fields, "NETWORK_NAME"),
-                default_gateway=_get_from_field(raw_device.fields, "DEFAULT_GATEWAY"),
-            )
+        interface = Interface(
+            name=_get_from_field(raw_device.fields, "INTERFACE_NAME"),
+            itype=_get_from_field(raw_device.fields, "INTERFACE TYPE"),
+            adapter=_get_from_field(raw_device.fields, "ADAPTER"),
+            slave_interfaces=(
+                _get_from_field(raw_device.fields, "SLAVES").split(",")
+                if _get_from_field(raw_device.fields, "SLAVES")
+                else None
+            ),
+            ip_address=_get_from_field(raw_device.fields, "IP_ADDRESS"),
+            network=_get_from_field(raw_device.fields, "NETWORK_NAME"),
+            default_gateway=_get_from_field(raw_device.fields, "DEFAULT_GATEWAY"),
+            subnet_mask=raw_device.fields.get(name_matching["SUBNET_MASK"], "").strip(),
+        )
         device.add_interface(interface)
 
     return
@@ -112,7 +110,6 @@ def parse_networks(raw_devices: list[RawDevices]) -> list[Network]:
 
         vlan = (raw_device.fields.get(name_matching["VLAN"], "").strip(),)
         network_ip = (raw_device.fields.get(name_matching["NETWORK_IP"], "").strip(),)
-        subnet_mask = (raw_device.fields.get(name_matching["SUBNET_MASK"], "").strip(),)
 
         if network_name in [n.name for n in networks]:  # update if already exists
             network = next(n for n in networks if n.name == network_name)
@@ -121,15 +118,12 @@ def parse_networks(raw_devices: list[RawDevices]) -> list[Network]:
                 network.vlan = vlan
             if not network.network_ip and network_ip:
                 network.network_ip = network_ip
-            if not network.subnet_mask and subnet_mask:
-                network.subnet_mask = subnet_mask
             continue
 
         network = Network(
             name=network_name,
             vlan=raw_device.fields.get(name_matching["VLAN"], "").strip(),
             network_ip=raw_device.fields.get(name_matching["NETWORK_IP"], "").strip(),
-            subnet_mask=raw_device.fields.get(name_matching["SUBNET_MASK"], "").strip(),
         )
         networks.append(network)
 
