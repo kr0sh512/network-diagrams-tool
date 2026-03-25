@@ -60,7 +60,6 @@ def make_yaml(topology: Topology, output_path: Path) -> None:
                         "name": interface.name,
                         "members": interface.slave_interfaces,
                         "ip": ip,
-                        "network": interface.network if interface.network else None,
                         "gateway": (
                             interface.default_gateway
                             if interface.default_gateway
@@ -75,12 +74,12 @@ def make_yaml(topology: Topology, output_path: Path) -> None:
                         "name": interface.name,
                         "parent": interface.parent_interface,
                         "ip": ip,
-                        "network": interface.network if interface.network else None,
                         "gateway": (
                             interface.default_gateway
                             if interface.default_gateway
                             else None
                         ),
+                        "id": interface.vlan,
                     }
                 )
                 continue

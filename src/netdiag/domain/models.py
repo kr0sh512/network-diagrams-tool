@@ -1,6 +1,7 @@
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
+import logging
 
-# ===========================
+# TODO rewrite to dataclasses with validation
 
 
 class Interface:
@@ -13,13 +14,13 @@ class Interface:
     network: Optional[str]
     subnet_mask: Optional[str]
     default_gateway: Optional[str]
+    vlan: Optional[str]
     # ---
     device: "Device"  # set by Device.add_interface() when the interface is added to a device
 
     def __init__(
         self,
         name: str,
-        itype: Optional[str] = None,
         adapter: Optional[str] = None,
         slave_interfaces: Optional[List[str]] = None,
         parent_interface: Optional[str] = None,
@@ -27,11 +28,10 @@ class Interface:
         network: Optional[str] = None,
         subnet_mask: Optional[str] = None,
         default_gateway: Optional[str] = None,
+        vlan: Optional[str] = None,
     ):
         if not isinstance(name, str):
             raise ValueError("Interface 'name' must be a string")
-        if itype is not None and not isinstance(itype, str):
-            raise ValueError("Interface 'itype' must be a string or None")
         if ip_address is not None and not isinstance(ip_address, str):
             raise ValueError("Interface 'ip_address' must be a string or None")
         if network is not None and not isinstance(network, str):
@@ -48,33 +48,43 @@ class Interface:
             )
         if parent_interface is not None and not isinstance(parent_interface, str):
             raise ValueError("Interface 'parent_interface' must be a string or None")
+        if vlan is not None and not isinstance(vlan, str):
+            raise ValueError("Interface 'vlan' must be a string or None")
 
-        itype = None if itype == "" else itype
+        # edit this
         adapter = None if adapter == "" else adapter
+        slave_interfaces = None if slave_interfaces == [] else slave_interfaces
+        parent_interface = None if parent_interface == "" else parent_interface
+        vlan = None if vlan == "" else vlan
 
-        if itype is None and adapter is None:
-            itype = "virtual"
-        if adapter is not None:
-            if itype is not None and itype != "physical":
-                raise ValueError(
-                    "Interface with an adapter must have 'itype' set to 'physical'"
-                )
-            itype = "physical"
+        logging.debug(
+            f"Creating interface '{name}' with adapter='{adapter}', slave_interfaces='{slave_interfaces}', parent_interface='{parent_interface}'"
+        )
 
-        if itype not in (None, "physical", "virtual", "bridge", "vlan"):
+        # looks like shit
+        if (
+            (adapter is not None)
+            + (slave_interfaces is not None)
+            + (parent_interface is not None)
+        ) != 1:
             raise ValueError(
-                "Interface 'itype' must be one of 'physical', 'virtual', 'bridge', 'vlan', or None"
+                "Interface must have exactly one of 'adapter', 'slave_interfaces', or 'parent_interface' defined"
             )
 
-        # print(
-        #     f"Creating interface '{name}' with itype='{itype}', adapter='{adapter}', slave_interfaces='{slave_interfaces}', parent_interface='{parent_interface}', ip_address='{ip_address}', network='{network}', subnet_mask='{subnet_mask}', default_gateway='{default_gateway}'"
-        # )
+        if slave_interfaces is not None:
+            itype = "bridge"
+            network = None
+        elif parent_interface is not None:
+            if vlan is None:
+                raise ValueError(
+                    "Interface with 'parent_interface' must have 'vlan' defined"
+                )
+            itype = "vlan"
+            network = None
+        else:
+            itype = "physical"
 
-        if itype == "bridge" and not slave_interfaces:
-            raise ValueError("Bridge interfaces must have 'slave_interfaces' defined")
-        if itype == "vlan" and not parent_interface:
-            raise ValueError("VLAN interfaces must have 'parent_interface' defined")
-
+        # sort all this values
         self.name = name
         self.itype = itype
         self.ip_address = ip_address
@@ -84,9 +94,10 @@ class Interface:
         self.adapter = adapter
         self.slave_interfaces = slave_interfaces
         self.parent_interface = parent_interface
+        self.vlan = vlan
 
     def __repr__(self) -> str:
-        return f"Interface(name={self.name}, itype={self.itype}, ip_address={self.ip_address}, network={self.network}, default_gateway={self.default_gateway}, subnet_mask={self.subnet_mask}, adapter={self.adapter}, slave_interfaces={self.slave_interfaces})"
+        return f"Interface(name={self.name}, itype={self.itype}, ip_address={self.ip_address}, network={self.network}, default_gateway={self.default_gateway}, subnet_mask={self.subnet_mask}, adapter={self.adapter}, slave_interfaces={self.slave_interfaces}, vlan={self.vlan})"
 
 
 # ===========================
@@ -113,7 +124,6 @@ class Device:
     def rm_interface(self, interface: Interface):
         if interface.name in self.interfaces:
             del self.interfaces[interface.name]
-            # interface.device = None  # clear the device attribute of the interface
             del interface
         else:
             raise ValueError(
@@ -142,8 +152,7 @@ class Switch(Device):
 class Network:
     name: str
     interfaces: List[Interface]
-    vlan: Optional[str]  # need a proper parse
-    network_ip: Optional[str]
+    network_ip: Optional[str]  # а что он делает?
 
     def __init__(
         self,

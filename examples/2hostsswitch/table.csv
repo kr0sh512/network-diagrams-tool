@@ -1,12 +1,10 @@
-Name,Role,Adapter,Interface,Master Interface,Network,VLAN,Network IP,Mask,Device IP,Default Gateway
-PC1,Host,Adapter1,eth1,vlan7,A,,,,,
-PC1,Host,,vlan7,,,7,10.10.10.0,/24,10.10.10.7,0.0.0.0
-PC2,Host,Adapter1,eth1,vlan9,B,,,,,
-PC2,Host,,vlan9,,,9,10.10.10.0,/24,10.10.10.9,0.0.0.0
-com,Switch,Adapter1,eth1,vlan7,A,7,,,,
-com,Switch,Adapter2,eth2,vlan9,B,9,,,,
-com,Switch,,vlan7,bridge,,,,,,
-com,Switch,,vlan9,bridge,,,,,,
-com,Switch,,bridge,,,,,,,
-
-## REMAKE
+Name,Role,Adapter,Interface,Parent Interface,Slave Interfaces,Network,VLAN,Network IP,Mask,Device IP,Default Gateway
+PC1,Host,Adapter1,eth1,,,A,,,,,
+PC1,Host,,vlan7,eth1,,,7,10.10.10.0,/24,10.10.10.7,0.0.0.0
+PC2,Host,Adapter1,eth1,,,B,,,,,
+PC2,Host,,vlan9,eth1,,,9,10.10.10.0,/24,10.10.10.9,0.0.0.0
+com,Switch,Adapter1,eth1,,,A,7,,,,
+com,Switch,Adapter2,eth2,,,B,9,,,,
+com,Switch,,vlan7,eth1,,,,,,,
+com,Switch,,vlan9,eth2,,,,,,,
+com,Switch,,bridge,,"vlan7,vlan9",,,,,,wa

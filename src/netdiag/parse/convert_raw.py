@@ -15,7 +15,6 @@ name_matching = {
     "DEVICE_TYPE": "Role",
     "DEVICE_NAME": "Name",
     "ADAPTER": "Adapter",
-    "INTERFACE TYPE": "Interface Type",
     "MASTER": "Master Interface",
     "SLAVES": "Slave Interfaces",
     "PARENT": "Parent Interface",
@@ -83,13 +82,13 @@ def add_interfaces(devices: list[Device], raw_devices: list[RawDevices]) -> None
 
         interface = Interface(
             name=_get_from_field(raw_device.fields, "INTERFACE_NAME"),
-            itype=_get_from_field(raw_device.fields, "INTERFACE TYPE"),
             adapter=_get_from_field(raw_device.fields, "ADAPTER"),
             slave_interfaces=(
                 _get_from_field(raw_device.fields, "SLAVES").split(",")
                 if _get_from_field(raw_device.fields, "SLAVES")
                 else None
             ),
+            vlan=_get_from_field(raw_device.fields, "VLAN"),
             parent_interface=_get_from_field(raw_device.fields, "PARENT"),
             ip_address=_get_from_field(raw_device.fields, "IP_ADDRESS"),
             network=_get_from_field(raw_device.fields, "NETWORK_NAME"),
@@ -109,21 +108,16 @@ def parse_networks(raw_devices: list[RawDevices]) -> list[Network]:
         if not network_name:
             continue
 
-        vlan = (raw_device.fields.get(name_matching["VLAN"], "").strip(),)
         network_ip = (raw_device.fields.get(name_matching["NETWORK_IP"], "").strip(),)
 
         if network_name in [n.name for n in networks]:  # update if already exists
             network = next(n for n in networks if n.name == network_name)
-
-            if not network.vlan and vlan:
-                network.vlan = vlan
             if not network.network_ip and network_ip:
                 network.network_ip = network_ip
             continue
 
         network = Network(
             name=network_name,
-            vlan=raw_device.fields.get(name_matching["VLAN"], "").strip(),
             network_ip=raw_device.fields.get(name_matching["NETWORK_IP"], "").strip(),
         )
         networks.append(network)

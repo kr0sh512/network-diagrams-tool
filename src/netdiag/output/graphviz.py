@@ -3,6 +3,10 @@ from pathlib import Path
 import graphviz
 import shutil
 
+# TODO:
+# - find ithers implementations of graphviz
+# - actualize code
+
 
 def _check_graphviz_installed() -> bool:
     return shutil.which("dot") is not None
