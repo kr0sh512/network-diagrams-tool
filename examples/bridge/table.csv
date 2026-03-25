@@ -1,6 +1,6 @@
-Name,Role,Adapter,Interface,Interface Type,Slave Interfaces,Network,VLAN,Network IP,Mask,Device IP,Default Gateway
-srv,Host,Adapter1,eth1,,,net1,,10.0.0.0,/24,10.0.0.1,
-client,Host,Adapter1,eth1,,,net2,,10.0.0.0,/24,10.0.0.2,
-bridge,Switch,Adapter1,eth1,,,net1,,,,,
-bridge,Switch,Adapter2,eth2,,,net2,,,,,
-bridge,Switch,,br0,bridge,"eth1,eth2",,,,,,
+Name,Role,Adapter,Interface,Slave Interfaces,Network,Network IP,Mask,Device IP
+srv,Host,Adapter1,eth1,,net1,10.0.0.0,/24,10.0.0.1
+client,Host,Adapter1,eth1,,net2,10.0.0.0,/24,10.0.0.2
+bridge,Switch,Adapter1,eth1,,net1,,,
+bridge,Switch,Adapter2,eth2,,net2,,,
+bridge,Switch,,br0,"eth1,eth2",,,,
