@@ -90,6 +90,7 @@ def add_interfaces(devices: list[Device], raw_devices: list[RawDevices]) -> None
                 if _get_from_field(raw_device.fields, "SLAVES")
                 else None
             ),
+            parent_interface=_get_from_field(raw_device.fields, "PARENT"),
             ip_address=_get_from_field(raw_device.fields, "IP_ADDRESS"),
             network=_get_from_field(raw_device.fields, "NETWORK_NAME"),
             default_gateway=_get_from_field(raw_device.fields, "DEFAULT_GATEWAY"),

@@ -66,6 +66,10 @@ class Interface:
                 "Interface 'itype' must be one of 'physical', 'virtual', 'bridge', 'vlan', or None"
             )
 
+        # print(
+        #     f"Creating interface '{name}' with itype='{itype}', adapter='{adapter}', slave_interfaces='{slave_interfaces}', parent_interface='{parent_interface}', ip_address='{ip_address}', network='{network}', subnet_mask='{subnet_mask}', default_gateway='{default_gateway}'"
+        # )
+
         if itype == "bridge" and not slave_interfaces:
             raise ValueError("Bridge interfaces must have 'slave_interfaces' defined")
         if itype == "vlan" and not parent_interface:
