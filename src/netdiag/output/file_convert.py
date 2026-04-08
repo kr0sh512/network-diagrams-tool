@@ -30,8 +30,8 @@ def make_yaml(topology: Topology, output_path: Path) -> None:
 
     for _, device in topology.devices.items():
         interfaces = dict()
-        interfaces["bridges"] = []
-        interfaces["vlans"] = []
+        bridges = []
+        vlans = []
 
         for interface_name, interface in device.interfaces.items():
             ip = interface.ip_address if interface.ip_address else None
@@ -55,7 +55,7 @@ def make_yaml(topology: Topology, output_path: Path) -> None:
                 index = int(interface.adapter[7:])
 
             if interface.itype == "bridge":
-                interfaces["bridges"].append(
+                bridges.append(
                     {
                         "name": interface.name,
                         "members": interface.slave_interfaces,
@@ -69,7 +69,7 @@ def make_yaml(topology: Topology, output_path: Path) -> None:
                 )
                 continue
             if interface.itype == "vlan":
-                interfaces["vlans"].append(
+                vlans.append(
                     {
                         "name": interface.name,
                         "parent": interface.parent_interface,
@@ -93,7 +93,13 @@ def make_yaml(topology: Topology, output_path: Path) -> None:
             }
 
         data["nodes"].append(
-            {"role": device.role, "name": device.name, "interfaces": interfaces}
+            {
+                "role": device.role,
+                "name": device.name,
+                "interfaces": interfaces,
+                "bridges": bridges,
+                "vlans": vlans,
+            }
         )
 
     with open(str(output_path), "w", encoding="utf-8") as f:
