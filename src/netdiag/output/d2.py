@@ -102,7 +102,7 @@ def _generate_picture(diagram: Path, output_path: Path) -> None:
         )
 
     res = subprocess.run(
-        ["d2", f"--theme={THEME_NUMBER}", str(diagram)],
+        ["d2", str(diagram)],
         check=True,
         capture_output=True,
     )

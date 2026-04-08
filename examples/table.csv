@@ -1,0 +1,4 @@
+Name,Role,Adapter,Interface,Network,Mask,Device IP
+PC1,Host,Adapter1,uplink,main,/24,10.0.12.1
+PC2,Host,Adapter1,uplink,main,/24,10.0.12.2
+PC3,Host,Adapter1,uplink,main,/24,10.0.12.3

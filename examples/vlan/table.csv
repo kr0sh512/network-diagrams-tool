@@ -1,0 +1,19 @@
+Name,Role,Adapter,Interface,Slave Interfaces,Parent Interface,Network,VLAN,Network IP,Mask,Device IP
+hostA,Host,Adapter1,eth1,,,netA,,10.0.0.0,/24,10.0.0.1
+hostB,Host,Adapter1,eth1,,,netB,,10.0.0.0,/24,10.0.0.2
+hostD,Host,Adapter1,eth1,,,netD,,10.0.0.0,/24,10.0.0.3
+hostE,Host,Adapter1,eth1,,,netE,,10.0.0.0,/24,10.0.0.4
+bright,Switch,Adapter1,eth1,,,netA,,,,
+bright,Switch,Adapter2,eth2,,,netB,,,,
+bright,Switch,Adapter3,eth3,,,netC,,,,
+bright,Switch,,vlan5,,eth3,,5,,,
+bright,Switch,,vlan7,,eth3,,7,,,
+bright,Switch,,br5,"eth1,vlan5",,,,,,
+bright,Switch,,br7,"eth2,vlan7",,,,,,
+bleft,Switch,Adapter1,eth1,,,netD,,,,
+bleft,Switch,Adapter2,eth2,,,netE,,,,
+bleft,Switch,Adapter3,eth3,,,netC,,,,
+bleft,Switch,,vlan5,,eth3,,5,,,
+bleft,Switch,,vlan7,,eth3,,7,,,
+bleft,Switch,,br5,"eth1,vlan5",,,,,,
+bleft,Switch,,br7,"eth2,vlan7",,,,,,

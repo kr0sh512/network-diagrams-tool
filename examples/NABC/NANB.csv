@@ -1,0 +1,9 @@
+Name,Role,Adapter,Interface,Network
+H1,Host,Adapter1,eth1,NA
+H1,Host,Adapter2,eth2,NB
+H2,Host,Adapter1,eth1,NA
+H3,Host,Adapter1,eth1,NA
+H4,Host,Adapter1,eth1,NB
+H5,Host,Adapter1,eth1,
+H6,Host,Adapter1,eth1,
+H6,Host,Adapter2,eth2,
