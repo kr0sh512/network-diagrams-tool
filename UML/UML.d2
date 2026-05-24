@@ -1,38 +1,22 @@
 direction: down
 
-Topology: {
+Interface: {
   shape: class
-  devices: "Dict[str, Device]"
-  networks: "Dict[str, Network]"
-  __init__(self)
-  "add_device(self, device: Device)"
-  "rm_device(self, device: Device)"
-  "add_network(self, network: Network)"
-  "rm_network(self, network: Network)"
-  __repr__(self): str
-}
 
-Network: {
-  shape:class
   name: str
-  interfaces: "List[Interface]"
-  vlan: "Optional[str]"
-  network_ip: "Optional[str]"
-  subnet_mask: "Optional[str]"
-  "__init__(self, ...)"
-  "add_interface(self, interface: Interface)"
-  "rm_interface(self, interface: Interface)"
-  __repr__(self): str
-}
+  itype: "[str]"
+  adapter: "[str]"
+  slave_interfaces: "[List[str]]"
+  parent_interface: "[str]"
+  ip_address: "[str]"
+  network: "[str]"
+  subnet_mask: "[str]"
+  default_gateway: "[str]"
+  vlan: "[str]"
+  device: Device
 
-Host: {
-  shape: class
-}
-Router: {
-  shape: class
-}
-Switch: {
-  shape: class
+  "__init__(name, ...)"
+  "__repr__(): str"
 }
 
 Device: {
@@ -41,27 +25,56 @@ Device: {
   name: str
   role: str
   interfaces: "Dict[str, Interface]"
-  "__init__(self, name: str)"
-  "add_interface(self, interface: Interface)"
-  "rm_interface(self, interface: Interface)"
-  __repr__(self): str
+
+  "__init__(name: str)"
+  "add_interface(interface: Interface)"
+  "rm_interface(interface: Interface)"
+  "__repr__(): str"
 }
 
-VirtualInterface: {
+Host: {
   shape: class
+
+  role: str
 }
 
-Interface: {
+Router: {
+  shape: class
+
+  role: str
+}
+
+Switch: {
+  shape: class
+
+  role: str
+}
+
+Network: {
   shape: class
 
   name: str
-  ip_address: "Optional[str]"
-  network: "Optional[str]"
-  default_gateway: "Optional[str]"
-  device: Device
+  interfaces: "List[Interface]"
+  network_ip: "[str]"
 
-  "__init__(self, ...)"
-  __repr__(self): str
+  "__init__(name: str, [vlan: [str]], [network_ip: [str]])"
+  "add_interface(interface: Interface)"
+  "rm_interface(interface: Interface)"
+  "__repr__(): str"
+}
+
+Topology: {
+  shape: class
+
+  devices: "Dict[str, Device]"
+  networks: "Dict[str, Network]"
+
+  "__init__()"
+  "add_device(device: Device)"
+  "rm_device(device: Device)"
+  "add_network(network: Network)"
+  "rm_network(network: Network)"
+  "__repr__(): str"
 }
 
 Host -> Device: {
@@ -79,32 +92,22 @@ Switch -> Device: {
   target-arrowhead.style.filled: false
 }
 
-VirtualInterface -> Interface: {
-  target-arrowhead.shape: triangle
-  target-arrowhead.style.filled: false
-}
-
-Device -- Interface: has {
+Device -- Interface: interfaces {
   source-arrowhead: 1..*
   target-arrowhead: 1
 }
 
-Device -- VirtualInterface: has {
+Network -- Interface: interfaces {
   source-arrowhead: 1..*
   target-arrowhead: 1
 }
 
-Topology -- Network: has {
+Topology -- Device: devices {
   source-arrowhead: 1..*
   target-arrowhead: 1
 }
 
-Topology -- Device: has {
-  source-arrowhead: 1..*
-  target-arrowhead: 1
-}
-
-Network -- Interface: has {
+Topology -- Network: networks {
   source-arrowhead: 1..*
   target-arrowhead: 1
 }
